@@ -1,0 +1,20 @@
+Package: DomoR
+Title: Interact with your Domo instance
+Version: 0.1
+Authors@R: "Domo <support@domo.com> [aut, cre]"
+Description: Easily interact with data in your
+    Domo instance by listing, fetching, and
+    creating data sources.
+Depends:
+    R (>= 3.1.1)
+License: MIT
+LazyData: true('d)
+Imports:
+    methods,
+    RCurl,
+    httr,
+    readr,
+    jsonlite,
+    pryr,
+    dplyr
+RoxygenNote: 6.1.1
