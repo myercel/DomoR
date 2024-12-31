@@ -67,24 +67,40 @@ schema_data <- function(data) {
 
 typeConversionText <- function(data, colindex) {
 
-  result <- 'STRING' #default column type
+  # NOTE: Code below has a bug that converts numeric fields to date
+  #result <- 'STRING' #default column type
 
-  date_time <- convertDomoDateTime(data[,colindex])
+  #date_time <- convertDomoDateTime(data[,colindex])
 
-  if(!is.na(date_time[1])){
-    type <- class(date_time)[1]
-    if(type == 'Date') result <- 'DATE'
-    if(type == 'POSIXct') result <- 'DATETIME'
-    if(type == 'POSIXlt') result <- 'DATETIME'
-  }else{
-    type <- class(data[,colindex])[1]
-    if(type == 'character') result <- 'STRING'
-    if(type == 'numeric') result <- 'DOUBLE'
-    if(type == 'integer') result <- 'LONG'
-    if(type == 'Date') result <- 'DATE'
-    if(type == 'POSIXct') result <- 'DATETIME'
-    if(type == 'factor') result <- 'STRING'
-    if(type == 'ts') result <- 'DOUBLE'
-  }
+  #if(!is.na(date_time[1])){
+    #type <- class(date_time)[1]
+    #if(type == 'Date') result <- 'DATE'
+    #if(type == 'POSIXct') result <- 'DATETIME'
+    #if(type == 'POSIXlt') result <- 'DATETIME'
+  #}else{
+    #type <- class(data[,colindex])[1]
+    #if(type == 'character') result <- 'STRING'
+    #if(type == 'numeric') result <- 'DOUBLE'
+    #if(type == 'integer') result <- 'LONG'
+    #if(type == 'Date') result <- 'DATE'
+    #if(type == 'POSIXct') result <- 'DATETIME'
+    #if(type == 'factor') result <- 'STRING'
+    #if(type == 'ts') result <- 'DOUBLE'
+  #}
+
+  # NOTE: CODE WITH BUG FIXED:
+  # Get the column data
+  col_data <- data[[colindex]]
+
+  # Use R's native type to determine the Domo type
+  result <- case_when(
+    is.character(col_data) ~ 'STRING',
+    is.numeric(col_data) & !is.integer(col_data) ~ 'DOUBLE',
+    is.integer(col_data) ~ 'LONG',
+    is.factor(col_data) ~ 'STRING', # Treat factors as strings
+    is.Date(col_data) ~ 'DATE',
+    lubridate::is.POSIXct(col_data) | lubridate::is.POSIXlt(col_data) ~ 'DATETIME',
+    TRUE ~ 'STRING' # Default to STRING for other types
+  )
   return(result)
 }
